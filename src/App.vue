@@ -12,7 +12,7 @@
       <span class="spacer" />
 
 
-      <span @click="logout()">Logout</span>
+      <span class="logout" @click="logout()">Logout</span>
 
     </nav>
 
@@ -91,6 +91,15 @@ tr:not(:last-child) {
 
 .spacer {
   flex-grow: 1;
+}
+
+.logout {
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.logout:hover {
+  color: #c00000;
 }
 
 </style>
