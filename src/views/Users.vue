@@ -1,53 +1,52 @@
 <template>
-  <div class="users">
-    <h1>Users</h1>
+ 
 
-    <p>
-      <router-link
-        :to="{ name: 'create_user' }">
-        Create user
-      </router-link>
-    </p>
+    <v-data-table
+      :loading="loading"
+      :headers="headers"
+      :items="users"
+      :options.sync="options"
+      :server-items-length="user_count">
 
-    <p
-      v-if="error_message">
-      {{error_message}}
-    </p>
+      <template v-slot:top>
+        <v-toolbar
+          flat>
 
-    <p
-      class=""
-      v-if="loading">
-      Loading
-    </p>
+          <!--
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details/>
+          
 
-    <table v-else-if="users.length > 0">
-      <tr>
-        <th>Display name</th>
-        <th>Username</th>
-      </tr>
-      <tr
-        class="user"
-        v-for="user in users"
-        :key="user._id"
-        @click="$router.push({ name: 'user', params: {user_id: user._id} })">
+          <v-spacer></v-spacer>
+          -->
 
-        <td>
-          {{user.display_name || '-'}}
-        </td>
-        <td>
-          {{user.username}}
-        </td>
+          <v-btn
+            :to="{name: 'create_user'}">
+            <v-icon>mdi-account-plus</v-icon>
+            <span>Create user</span>
+            </v-btn>
 
-      </tr>
-    </table>
+        </v-toolbar>
+      </template>
 
-    <div
-      class="error_message"
-      v-else="">
-      No user
-    </div>
+      <template v-slot:item="{item}">
+        <tr @click="row_clicked(item)">
+          <td>{{ item.username }}</td>
+          <td>{{ item.display_name }}</td>
+        </tr>
+      </template>
 
-  </div>
+      
+
+
+
+
+    </v-data-table>
+
 </template>
 
 <script>
@@ -57,22 +56,59 @@ export default {
     return {
       error_message: null,
       users: [],
+      user_count: 0,
+      options: {},
+      headers: [
+        {text: 'Username', value:'username'},
+        {text: 'Display name', value:'display_name'},
+      ],
       loading: false,
+      search: '',
     }
   },
   mounted(){
-    this.get_users()
+    //this.get_users()
+    this.get_user_count()
+    // Get user count will get users later on
+  },
+  watch: {
+    options: {
+      handler () {
+        this.get_users()
+      },
+      deep: true,
+    },
   },
   methods: {
+    get_user_count(){
+      const url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users/count`
+      this.axios.get(url)
+      .then( ({data}) => {
+        this.user_count = data.user_count
+        this.get_users()
+      })
+      .catch( error => {
+        console.error(error)
+      })
+
+    },
     get_users(){
       this.loading = true
       this.error_message = null
-      let url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users`
-      let method = 'get'
-      this.axios.[method](url)
-      .then( response => {
+
+      const { page, itemsPerPage } = this.options
+      console.log(this.options)
+
+
+      const url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users`
+      const params = {
+        skip: (page-1) * itemsPerPage, 
+        limit: itemsPerPage
+      }
+      this.axios.get(url, {params})
+      .then( ({data}) => {
         this.users = []
-        response.data.forEach((user) => {
+        data.forEach((user) => {
           this.users.push(user)
         })
 
@@ -84,18 +120,16 @@ export default {
       .finally( () => {
         this.loading = false
       })
+    },
+    row_clicked(item){
+      this.$router.push({name: 'user', params: {user_id: item._id}})
     }
   }
 }
 </script>
 
 <style>
-.user {
+td {
   cursor: pointer;
-  transition: 0.25s;
-}
-
-.user:hover {
-  background-color: #eeeeee;
 }
 </style>

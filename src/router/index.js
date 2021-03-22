@@ -16,22 +16,23 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: Login
+    component: Login,
   },
   {
     path: '/users',
     name: 'users',
-    component: Users
+    component: Users,
   },
   {
     path: '/users/new',
     name: 'create_user',
-    component: CreateUser
+    component: CreateUser,
+
   },
   {
     path: '/users/:user_id',
     name: 'user',
-    component: User
+    component: User,
   },
   {
     path: '/info',

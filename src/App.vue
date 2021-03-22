@@ -1,105 +1,101 @@
 <template>
-  <div id="app">
+  <v-app>
 
-    <nav>
+    <v-app-bar
+      app
+      color="primary"
+      dark>
 
-      <router-link :to="{ name: 'users' }">Users</router-link>
-      <template v-if="$route.name === 'user'">
-        <span>></span>
-        <span>{{$route.params.user_id}}</span>
-      </template>
+      <v-img
+        alt="Vuetify Logo"
+        class="shrink mr-2 rotating_logo"
+        contain
+        src="@/assets/logo.png"
+        transition="scale-transition"
+        width="40" />
+      
+      <v-app-bar-title>User manager</v-app-bar-title>
 
-      <span class="spacer" />
+      <v-spacer />
 
+      <v-btn 
+        icon
+        @click="logout()">
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
+      
 
-      <span class="logout" @click="logout()">Logout</span>
+    </v-app-bar>
 
-    </nav>
+    
+    
 
-    <main>
-      <router-view/>
-    </main>
+    <!-- v-container inside main This looks correct -->
+    <!-- v-container is here for padding mainly -->
+    <v-main>
+      <v-toolbar dense flat>
+        <v-breadcrumbs :items="breadcrumbs"/>
+      </v-toolbar>
+      <v-container fluid>
+        <router-view/>
+      </v-container>
+    </v-main>
 
+    <v-footer>
+      User manager - Maxime Moreillon
+    </v-footer>
 
-  </div>
+  </v-app>
 </template>
 
 <script>
-// @ is an alias to /src
-//import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'App',
+
+  data: () => ({
+  }),
   methods: {
     logout(){
+      
+      delete this.axios.defaults.headers.common['Authorization']
       this.$cookies.remove('token')
       this.$router.push({name: 'login'})
     }
+  },
+  computed: {
+    breadcrumbs(){
+      let output = [
+        {
+          text: 'Users',
+          exact: true,
+          to: {name: 'users'},
+        },
+      ]
+
+      if(this.$route.params.user_id) {
+        output.push( {
+          text: this.$route.params.user_id,
+          disabled: true,
+        })
+      }
+      return output
+    }
   }
-}
+
+};
 </script>
 
 <style>
-* {
-  box-sizing: border-box;
+.rotating_logo {
+  animation-name: rotating_logo;
+  animation-duration: 60s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
-body {
-  margin: 0;
-  font-family: sans-serif;
+@keyframes rotating_logo {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
 }
-
-nav {
-  display: flex;
-  border-bottom: 1px solid #dddddd;
-}
-
-nav > * {
-  margin: 0.5em;
-}
-
-nav a {
-  color: currentcolor;
-  text-decoration: none;
-  transition: 0.25s;
-}
-
-nav a:hover {
-  color: #c00000;
-}
-
-main {
-  margin: 0.5em;
-}
-
-.error, .error_message {
-  color: #c00000;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  text-align: left;
-}
-
-th, td {
-  padding: 0.25em;
-}
-tr:not(:last-child) {
-  border-bottom: 1px solid #dddddd;
-}
-
-.spacer {
-  flex-grow: 1;
-}
-
-.logout {
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.logout:hover {
-  color: #c00000;
-}
-
 </style>

@@ -1,53 +1,94 @@
 <template>
-  <div class="home">
-    <h1>User</h1>
+<v-card
+  max-width="400"
+  class="mx-auto">
 
-    <p class="error">{{error_message}}</p>
+  
+  <template v-if="user">
 
-    <table v-if="user">
-      <tr>
-        <td>ID</td>
-        <td>{{user._id}}</td>
-      </tr>
-      <tr>
-        <td>Username</td>
-        <td>{{user.username}}</td>
-      </tr>
-      <tr>
-        <td>Display name</td>
-        <td v-if="true">
-          <input type="text" v-model="user.display_name">
-        </td>
-        <td v-else>{{user.display_name}}</td>
-      </tr>
-      <tr>
-        <td>Admin</td>
-        <td>
-          <input type="checkbox" v-model="user.admin">
-        </td>
-      </tr>
-      <tr>
-        <td>Update user</td>
-        <td>
-          <button
-            type="button"
-            @click="update_user()">
-            Update user
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td>Delete user</td>
-        <td>
-          <button
-            type="button"
-            @click="delete_user()">
-            Delete user
-          </button>
-        </td>
-      </tr>
-    </table>
-  </div>
+    <v-img
+      src="@/assets/account.svg"
+      height="300px"/>
+
+    <v-card-title>{{user.username}}</v-card-title>
+
+    <v-list>
+
+      <v-list-item>
+          <v-list-item-content>
+            <div class="caption">ID</div>
+            <div>{{user._id}}</div>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-content>
+            <div class="caption">Username</div>
+            <div>{{user.username}}</div>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-content>
+            <v-text-field
+              label="Display name"
+              v-model="user.display_name" />
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-content>
+            Admin
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch 
+              :disabled="user_is_current_user"
+              v-model="user.admin"/>
+          </v-list-item-action>
+
+        </v-list-item>
+
+    </v-list>
+
+    <v-card-actions>
+      <v-btn
+        @click="update_user()">
+        <v-icon>mdi-content-save</v-icon>
+        <span>Save changes</span>
+      </v-btn>
+
+      <v-btn
+        @click="delete_user()"
+        color="#c00000"
+        dark
+        :disabled="user_is_current_user">
+        <v-icon>mdi-delete</v-icon>
+        <span>Delete user</span>
+      </v-btn>
+    </v-card-actions>
+  </template>
+
+  <v-snackbar
+      v-model="snack" 
+      color="success">
+      User updated successfully
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="primary"
+          text
+          v-bind="attrs"
+          @click="snack = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+  
+
+</v-card>
+  
 </template>
 
 <script>
@@ -56,8 +97,10 @@ export default {
   name: 'User',
   data(){
     return {
+      loading: false,
       error_message: null,
       user: null,
+      snack: false,
     }
   },
   mounted(){
@@ -65,6 +108,7 @@ export default {
   },
   methods: {
     get_user(){
+      this.loading = true
       this.error_message = null
       let user_id = this.$route.params.user_id || 'self'
       let url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users/${user_id}`
@@ -75,9 +119,12 @@ export default {
         if(error.response) this.error_message = error.response.data
         else this.error_message = `Error loading user`
       })
+      .finally( () => {
+        this.loading = false
+      })
     },
     delete_user(){
-      if(!confirm(`Delete user ${this.user.username}`))
+      if(!confirm(`Delete user ${this.user.username}`)) return
       this.error_message = null
       let user_id = this.$route.params.user_id || 'self'
       let url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users/${user_id}`
@@ -97,12 +144,14 @@ export default {
       const {display_name, admin} = this.user
 
       const properties = {
-        display_name: display_name,
-        admin: admin
+        display_name,
+        admin
       }
 
       this.axios.patch(url,properties)
-      .then( () => { this.get_user() })
+      .then( () => { 
+        this.snack = true
+       })
       .catch( error => {
         console.error(error)
         if(error.response) this.error_message = error.response.data
@@ -110,6 +159,13 @@ export default {
       })
 
     },
+  },
+  computed: {
+    user_is_current_user(){
+      const user_id = this.$route.params.user_id
+      if(!user_id) return true
+      return this.$store.state.current_user._id === user_id
+    }
   }
 
 }
