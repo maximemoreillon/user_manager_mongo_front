@@ -6,7 +6,8 @@
       :headers="headers"
       :items="users"
       :options.sync="options"
-      :server-items-length="user_count">
+      :server-items-length="user_count"
+      @click:row="row_clicked($event)">
 
       <template v-slot:top>
         <v-toolbar
@@ -31,13 +32,6 @@
             </v-btn>
 
         </v-toolbar>
-      </template>
-
-      <template v-slot:item="{item}">
-        <tr @click="row_clicked(item)">
-          <td>{{ item.username }}</td>
-          <td>{{ item.display_name }}</td>
-        </tr>
       </template>
 
       
@@ -97,7 +91,6 @@ export default {
       this.error_message = null
 
       const { page, itemsPerPage } = this.options
-      console.log(this.options)
 
 
       const url = `${process.env.VUE_APP_USER_MANAGER_API_URL}/users`
@@ -129,7 +122,7 @@ export default {
 </script>
 
 <style>
-td {
+tr {
   cursor: pointer;
 }
 </style>

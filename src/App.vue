@@ -33,15 +33,12 @@
     <!-- v-container inside main This looks correct -->
     <!-- v-container is here for padding mainly -->
     <v-main>
-      <v-toolbar dense flat>
-        <v-breadcrumbs :items="breadcrumbs"/>
-      </v-toolbar>
       <v-container fluid>
         <router-view/>
       </v-container>
     </v-main>
 
-    <v-footer>
+    <v-footer class="text-center">
       User manager - Maxime Moreillon
     </v-footer>
 
@@ -64,23 +61,7 @@ export default {
     }
   },
   computed: {
-    breadcrumbs(){
-      let output = [
-        {
-          text: 'Users',
-          exact: true,
-          to: {name: 'users'},
-        },
-      ]
-
-      if(this.$route.params.user_id) {
-        output.push( {
-          text: this.$route.params.user_id,
-          disabled: true,
-        })
-      }
-      return output
-    }
+    
   }
 
 };

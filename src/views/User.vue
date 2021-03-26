@@ -1,100 +1,111 @@
 <template>
-<v-card
-  max-width="400"
-  class="mx-auto">
 
-  
-  <template v-if="user">
+<div>
+  <Breadcrumbs />
+  <v-card
+    max-width="400"
+    class="mx-auto">
 
-    <v-img
-      src="@/assets/account.svg"
-      height="300px"/>
+    
+    <template v-if="user">
 
-    <v-card-title>{{user.username}}</v-card-title>
+      <v-img
+        src="@/assets/account.svg"
+        height="300px"/>
 
-    <v-list>
+      <v-card-title>{{user.username}}</v-card-title>
 
-      <v-list-item>
-          <v-list-item-content>
-            <div class="caption">ID</div>
-            <div>{{user._id}}</div>
-          </v-list-item-content>
-        </v-list-item>
+      <v-list>
 
         <v-list-item>
-          <v-list-item-content>
-            <div class="caption">Username</div>
-            <div>{{user.username}}</div>
-          </v-list-item-content>
-        </v-list-item>
+            <v-list-item-content>
+              <div class="caption">ID</div>
+              <div>{{user._id}}</div>
+            </v-list-item-content>
+          </v-list-item>
 
-        <v-list-item>
-          <v-list-item-content>
-            <v-text-field
-              label="Display name"
-              v-model="user.display_name" />
-          </v-list-item-content>
-        </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <div class="caption">Username</div>
+              <div>{{user.username}}</div>
+            </v-list-item-content>
+          </v-list-item>
 
-        <v-list-item>
-          <v-list-item-content>
-            Admin
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch 
-              :disabled="user_is_current_user"
-              v-model="user.admin"/>
-          </v-list-item-action>
+          <v-list-item>
+            <v-list-item-content>
+              <v-text-field
+                label="Display name"
+                v-model="user.display_name" />
+            </v-list-item-content>
+          </v-list-item>
 
-        </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              Admin
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch 
+                :disabled="user_is_current_user"
+                v-model="user.admin"/>
+            </v-list-item-action>
 
-    </v-list>
+          </v-list-item>
 
-    <v-card-actions>
-      <v-btn
-        @click="update_user()">
-        <v-icon>mdi-content-save</v-icon>
-        <span>Save changes</span>
-      </v-btn>
+      </v-list>
 
-      <v-btn
-        @click="delete_user()"
-        color="#c00000"
-        dark
-        :disabled="user_is_current_user">
-        <v-icon>mdi-delete</v-icon>
-        <span>Delete user</span>
-      </v-btn>
-    </v-card-actions>
-  </template>
-
-  <v-snackbar
-      v-model="snack" 
-      color="success">
-      User updated successfully
-
-      <template v-slot:action="{ attrs }">
+      <v-card-actions>
         <v-btn
-          color="primary"
-          text
-          v-bind="attrs"
-          @click="snack = false"
-        >
-          Close
+          class="mx-2"
+          @click="update_user()">
+          <v-icon>mdi-content-save</v-icon>
+          <span>Save changes</span>
         </v-btn>
-      </template>
-    </v-snackbar>
+
+        <v-btn
+          class="mx-2"
+          @click="delete_user()"
+          color="#c00000"
+          dark
+          :disabled="user_is_current_user">
+          <v-icon>mdi-delete</v-icon>
+          <span>Delete user</span>
+        </v-btn>
+      </v-card-actions>
+    </template>
+
+    <v-snackbar
+        v-model="snack" 
+        color="success">
+        User updated successfully
+
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            color="primary"
+            text
+            v-bind="attrs"
+            @click="snack = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+
+    
+
+  </v-card>
+</div>
 
   
-
-</v-card>
   
 </template>
 
 <script>
-
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
 export default {
   name: 'User',
+  components: {
+    Breadcrumbs
+  },
   data(){
     return {
       loading: false,
